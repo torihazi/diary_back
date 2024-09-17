@@ -1,28 +1,31 @@
-# frozen_string_literal: true
-
 class Api::V1::Users::SessionsController < Devise::SessionsController
   include RackSessionFix
-  # before_action :configure_sign_in_params, only: [:create]
+  respond_to :json
 
-  # GET /resource/sign_in
-  # def new
-  #   super
-  # end
-
-  # POST /resource/sign_in
-  def create
-    super
+  def new
+    json_response = "失敗時のjson形式のレスポンスデータを生成"
+    render :json
   end
 
-  # DELETE /resource/sign_out
-  # def destroy
-  #   super
-  # end
+  def create
+    Rails.logger.debug("sign_in_params: #{sign_in_params}")
+    # self.resource = warden.authenticate!(auth_options)
+    self.resource = User.find_by(email: sign_in_params[:email])
+    Rails.logger.debug("resource: #{resource}")
+    sign_in(resource_name, resource)
+    # json_response = "json形式のレスポンスデータを生成"
+    render json: {"message": resource}, status: :ok
+  end
 
   protected
 
-  # If you have extra params to permit, append them to the sanitizer.
+  # def auth_options
+  #   { scope: :user, recall: "#{controller_path}#new" }
+  # end
+
+  private
   def sign_in_params
-    params.permit(:user).permit(:email, :password)
+    params.require(:user).permit(:email, :password)
   end
+
 end
