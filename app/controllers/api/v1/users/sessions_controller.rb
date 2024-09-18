@@ -8,13 +8,12 @@ class Api::V1::Users::SessionsController < Devise::SessionsController
   end
 
   def create
-    Rails.logger.debug("sign_in_params: #{sign_in_params}")
     # self.resource = warden.authenticate!(auth_options)
     self.resource = User.find_by(email: sign_in_params[:email])
     Rails.logger.debug("resource: #{resource}")
     sign_in(resource_name, resource)
     # json_response = "json形式のレスポンスデータを生成"
-    render json: {"message": resource}, status: :ok
+    render json: {"data": resource, "message": "success sign in"}, status: :ok
   end
 
   protected
