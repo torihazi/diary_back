@@ -5,4 +5,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,:confirmable,
          :recoverable, :validatable,
          :jwt_authenticatable, jwt_revocation_strategy: self
+  
+  has_many :diaries
+  
 end
