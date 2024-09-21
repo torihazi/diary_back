@@ -1,6 +1,6 @@
 class Api::V1::DiariesController < ApplicationController
   before_action :authenticate_api_v1_user!
-  before_action :set_diary, only: [:show,:update]
+  before_action :set_diary, only: [:show,:update, :destroy]
 
   def index
     @diaries = current_api_v1_user.diaries.all
@@ -28,10 +28,23 @@ class Api::V1::DiariesController < ApplicationController
     end    
     
     if @diary.update(diary_params)
-      render json: {"message": "更新が完了しました", status: :ok}
+      render json: {"message": "更新が完了しました"}, status: :ok
     else
       Rails.logger.debug(@diary.error_messages.full_messages.join(""))
       render json: {"message": "更新に失敗しました", status: :unprocessable_entity}
+    end
+  end
+
+  def destroy
+    if !owner_verify
+      render json: {"message": "所有者ではありません"}, status: :unprocessable_entity
+    end
+
+    if @diary.destroy
+      render json: {"message": "削除が成功しました"}, status: :ok
+    else
+      Rails.logger.debug(@diary.error_messages.full_messages.join(","))
+      render json: {"message": "削除に失敗しました"}, status: :ok
     end
   end
 
